@@ -8,7 +8,7 @@ import java.util.List;
 public interface ICategoryDao {
 
     /**
-     * 获取所有一级分类信息（并包括所属二级分类信息）
+     * 获取所有一级分类信息（并包括所属二级分类信息）。
      * @return
      */
     List<CategoryExt2> getAllCategory();

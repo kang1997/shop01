@@ -16,7 +16,7 @@ public class EvaluationController {
     private IOrderItemService orderItemService;
 
     /**
-     * 我的评价,查询OrderItemExt，返回封装到myEvaluation.jsp视图界面
+     * 我的评价,查询OrderItemExt，返回封装到myEvaluation.jsp视图界面。
      * @param itemid
      * @param model
      * @return

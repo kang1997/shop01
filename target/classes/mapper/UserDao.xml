@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 设置为IUserDao接口方法提供sql语句配置 -->
+<mapper namespace="com.aishang.dao.IUserDao">
+
+    <!-- 框架搭建测试代码-->
+    <select id="selectUser" resultType="User" parameterType="long">
+        SELECT * FROM user WHERE id = #{id}
+    </select>
+    <!--注册：查找姓名-->
+    <select id="findUserByName" parameterType="String" resultType="User">
+        select * from user where username = #{username}
+    </select>
+    <!-- 注册：查找手机号 -->
+    <select id="findUserByPhone" parameterType="String" resultType="User">
+        select * from user where phone = #{phone}
+    </select>
+    <!-- 注册：添加用户 -->
+    <insert id="addUser" parameterType="User">
+        insert into user (username,password,name,email,phone,addr) values
+        (#{username},#{password},#{name},#{email},#{phone},#{addr})
+    </insert>
+    <!-- 登录：查找手机号（用户名），和密码 -->
+    <select id="findLogiinUser" parameterType="User" resultType="User">
+        select * from user where phone = #{phone} and password = #{password}
+    </select>
+    <!-- 个人信息页面修改 -->
+    <update id="updatePersonUser" parameterType="User">
+        update user set password = #{password},name = #{name},email = #{email},addr = #{addr} where phone = #{phone}
+    </update>
+
+</mapper>

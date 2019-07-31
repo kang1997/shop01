@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 设置为ICategoryDao接口方法提供sql语句配置 -->
+<mapper namespace="com.aishang.dao.ICategoryDao">
+
+    <!-- 手动的指定数据库中查询的列名和Java类的属性之间的映射关系-->
+    <resultMap id="allCategory" type="CategoryExt2">
+        <!--主键和主属性的对应关系-->
+        <id column="cid" property="cid" />
+        <!--非主键和非主属性的对应关系-->
+        <result column="cname" property="cname" />
+        <result column="orders" property="orders" />
+        <!--1:N映射了，1个一级分类对应多个二级分类-->
+        <collection property="cSecExtList" ofType="CategorySecondExt">
+            <!--多的一方主键和主属性的对应关系-->
+            <id column="csid" property="csid" />
+            <!--多的非主键和非主属性的对应关系-->
+            <result column="csname" property="csname" />
+            <!--1:N映射了，1个二级分类对应多个product的分类-->
+            <collection property="productList" ofType="Product">
+                <!--多的一方主键和主属性的对应关系-->
+                <id column="pid" property="pid" />
+                <!--多的非主键和非主属性的对应关系-->
+                <result column="pname" property="pname" />
+                <result column="market_price" property="market_price" />
+                <result column="shop_price" property="shop_price" />
+                <result column="image" property="image" />
+                <result column="pdesc" property="pdesc" />
+                <result column="pdate" property="pdate" />
+
+            </collection>
+        </collection>
+
+    </resultMap>
+
+    <!--不用resultType="CategoryExt" ， 用手动指定返回类型-->
+    <!--遍历一级类目以及一级类目下的二级类目-->
+    <select id="getAllCategory" resultMap="allCategory" >
+        select a.cid,a.cname,b.csid,b.csname
+        from category as a left JOIN categorysecond as b
+        on a.cid = b.cid;
+    </select>
+
+    <!--不用resultType="CategoryExt" ， 用手动指定返回类型-->
+    <!--index页面，符合1F,2F等符合条件的一二级类目-->
+    <!--productList页面热销商品的所有一二级类目id，根据ID查商品-->
+    <select id="getSuitableCategory" resultMap="allCategory">
+        select a.cid,a.cname,a.orders,b.csid,b.csname
+        from category as a left JOIN categorysecond as b
+        on a.cid = b.cid
+        where a.visable = 1 and b.indexvisable = 1
+        order by a.orders asc
+    </select>
+    <!--productList页面热销商品的所有二级类目id，根据ID查商品-->
+    <select id="getSuitableCategorySecond" resultMap="allCategory">
+        select csid,csname
+        from categorysecond
+        where indexvisable = 1
+    </select>
+
+</mapper>

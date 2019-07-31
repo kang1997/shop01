@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 设置为IProductDao接口方法提供sql语句配置 -->
+<mapper namespace="com.aishang.dao.IOrderItemDao">
+
+    <!--插入我的订单项的记录-->
+    <insert id="addOrderItem" parameterType="OrderItem">
+        insert into orderitem values (default,#{count},#{subtotal},#{pid},#{oid})
+    </insert>
+
+    <!--删除我的订单项的记录-->
+    <delete id="deleteOrderItem" parameterType="Integer">
+        delete from orderitem where itemid = #{itemid}
+    </delete>
+    
+    <resultMap id="findOrderitem" type="OrderItemExt">
+        <id property="itemid" column="itemid"/>
+        <result column="count" property="count"/>
+        <result column="subtotal" property="subtotal"/>
+        <result column="pid" property="pid"/>
+        <!--1:1-->
+        <association property="product" javaType="Product">
+            <id property="pid" column="pid"/>
+            <result column="pname" property="pname"/>
+            <result column="image" property="image"/>
+            <result column="shop_price" property="shop_price"/>
+        </association>
+    </resultMap>
+
+    <select id="findOrderitemByItemid" parameterType="Integer" resultMap="findOrderitem">
+        select oi.itemid,oi.count,oi.subtotal,oi.pid,p.pname,p.image,p.shop_price
+        from orderitem oi
+        inner join product p
+        on oi.pid = p.pid
+        where oi.itemid = #{itemid}
+    </select>
+
+</mapper>

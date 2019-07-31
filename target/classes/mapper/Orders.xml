@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 设置为IProductDao接口方法提供sql语句配置 -->
+<mapper namespace="com.aishang.dao.IOrdersDao">
+    <!--生成订单orders-->
+    <insert id="addOrders" parameterType="Orders">
+        <selectKey keyProperty="oid" resultType="Integer" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into orders (total,ordertime,state,uid)
+        values (#{total},#{ordertime},#{state},#{uid})
+
+    </insert>
+
+    <!--将生成的订单填写地址，姓名，电话-->
+    <update id="updateOrders" parameterType="Orders">
+      UPDATE orders set name = #{name},phone=#{phone},addr = #{addr}
+      where oid = #{oid}
+    </update>
+
+    <!--将生成的订单填写地址，姓名，电话之后，进入支付成功界面前改state状态，清空购物车之后进入支付成功界面-->
+    <update id="updateOrdersState" parameterType="Orders">
+      UPDATE orders set state = #{state}
+      where oid = #{oid}
+    </update>
+
+    <!--删除我的订单的记录-->
+    <delete id="deleteOrder" parameterType="Integer">
+        delete from orders where oid = #{oid}
+    </delete>
+
+    <!--手动指定查询的order订单包括订单里的订单项集合和订单项里的商品-->
+    <resultMap id="findOrders" type="OrdersExt">
+        <id property="oid" column="oid"/>
+        <result column="total" property="total"/>
+        <result column="uid" property="uid"/>
+        <result column="name" property="name"/>
+        <result column="phone" property="phone"/>
+        <result column="addr" property="addr"/>
+        <result column="ordertime" property="ordertime"/>
+        <result column="state" property="state"/>
+        <!--1:n-->
+        <collection property="orderItemExt" ofType="OrderItemExt">
+            <id property="itemid" column="itemid"/>
+            <result column="count" property="count"/>
+            <result column="subtotal" property="subtotal"/>
+            <result column="pid" property="pid"/>
+            <!--1:1-->
+            <association property="product" javaType="Product">
+                <id property="pid" column="pid"/>
+                <result column="pname" property="pname"/>
+                <result column="image" property="image"/>
+                <result column="shop_price" property="shop_price"/>
+            </association>
+        </collection>
+
+    </resultMap>
+    <!--查询orderExt-->
+    <select id="findOrderByOid" parameterType="Integer" resultMap="findOrders">
+        select o.*,oi.*,p.pname,p.image,p.shop_price
+        from orders o inner  join  orderitem oi
+        on o.oid = oi.oid
+        inner join product p
+        on oi.pid = p.pid
+        where o.oid = #{oid}
+    </select>
+
+    <select id="findOrderCount" parameterType="OrdersWapper" resultType="Integer">
+        select count(*)
+        from orders
+        where uid = #{uid}
+    </select>
+
+    <select id="findOrder" resultType="Orders" parameterType="OrdersWapper">
+        select *
+        from orders
+        where uid = #{uid}
+        limit #{startIndex},#{pageSize}
+    </select>
+
+</mapper>
