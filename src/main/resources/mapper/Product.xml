@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 设置为IProductDao接口方法提供sql语句配置 -->
+<mapper namespace="com.aishang.dao.IProductDao">
+
+    <!--index页面，根据csid查找商品-->
+    <!--ProductList页面，根据csid查找热门商品-->
+    <select id="findProductByCsid" parameterType="int" resultType="Product">
+        select * from product
+        where is_hot = 1 and ishidden = 0 and csid = #{csid}
+        order by pid desc
+    </select>
+    <!--根据cid查找一级类目下的所有商品的某一页-->
+    <select id="findProductByCidOrPname" parameterType="ProductWapper" resultType="Product">
+        select p.*
+        from category c INNER JOIN categorysecond cs
+        on c.cid = cs.cid
+        INNER JOIN product p
+        on cs.csid = p.csid
+        <where>
+            <if test="cid!= null and cid!= '' ">
+                and c.cid = #{cid}
+            </if>
+            <if test="pname!= null and pname!= '' ">
+                and p.pname like '%${pname}%'
+            </if>
+            <if test="ishidden!= null and ishidden!= '' ">
+                and p.ishidden = 0
+            </if>
+        </where>
+        limit #{startIndex},#{pageSize}
+    </select>
+    <!--根据cid查找一级类目下的所有商品-->
+    <select id="findProductCountByCidOrPname" parameterType="ProductWapper" resultType="Integer">
+        select count(p.pid)
+        from category as c INNER JOIN categorysecond as cs
+        on c.cid = cs.cid
+        INNER JOIN product as p
+        on cs.csid = p.csid
+        <where>
+            <if test="cid!= null and cid!=''">
+                and c.cid = #{cid}
+            </if>
+            <if test="pname!= null and pname!=''">
+                and p.pname like '%${pname}%'
+            </if>
+            <if test="ishidden!= null and ishidden!= '' ">
+                and p.ishidden = 0
+            </if>
+        </where>
+    </select>
+    <!--根据csid查找二级类目下的所有商品的某一页-->
+    <select id="findProductByCsidOrPname" parameterType="ProductWapper" resultType="Product">
+        select *
+        from product
+        <where>
+            <if test="csid!= null and  csid!= '' ">
+                and csid = #{csid}
+            </if>
+            <if test="pname!= null and pname!=''">
+                and pname like '%${pname}%'
+            </if>
+            <if test="ishidden!= null and ishidden!= '' ">
+                and p.ishidden = 0
+            </if>
+        </where>
+        limit #{startIndex},#{pageSize}
+    </select>
+    <!--根据csid查找二级类目下的所有商品-->
+    <select id="findProductCountByCsidOrPname" parameterType="ProductWapper" resultType="Integer">
+        select count(pid)
+        from product
+        <where>
+            <if test="csid!=null and  csid!= '' ">
+                and csid = #{csid}
+            </if>
+            <if test="pname!= null and pname!=''">
+                and pname like '%${pname}%'
+            </if>
+            <if test="ishidden!= null and ishidden!= '' ">
+                and p.ishidden = 0
+            </if>
+        </where>
+    </select>
+    <!--根据pid查询商品详情-->
+    <select id="findProductByPid" parameterType="Integer" resultType="Product">
+        select *
+        from  product
+        where pid = #{pid}
+    </select>
+
+</mapper>
